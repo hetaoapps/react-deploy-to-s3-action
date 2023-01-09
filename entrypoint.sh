@@ -27,8 +27,19 @@ if [ -n "$AWS_S3_ENDPOINT" ]; then
   ENDPOINT_APPEND="--endpoint-url $AWS_S3_ENDPOINT"
 fi
 
-# Override default NODE_ENV (production) if set by user.
-NODE_ENV_PREPEND="NODE_ENV=${NODE_ENV:-production}"
+# Override default NODE_ENV (development) if set by user.
+NODE_ENV_PREPEND="NODE_ENV=${NODE_ENV:-development}"
+
+
+# Override default build mode if set by user
+BUILD_MODE=${BUILD_MODE:-development}
+
+if [ "${BUILD_MODE}" == "production" ]; then
+    BUILD_COMMAND="build:prod"
+else
+    BUILD_COMMAND="build:dev"
+fi
+
 
 # Create a dedicated profile for this action to avoid conflicts
 # with past/future actions.
@@ -44,7 +55,7 @@ EOF
 # - Sync using our dedicated profile and suppress verbose messages.
 #   All other flags are optional via the `args:` directive.
 sh -c "yarn" \
-&& sh -c "${NODE_ENV_PREPEND} yarn build" \
+&& sh -c "${NODE_ENV_PREPEND} yarn ${BUILD_COMMAND}" \
 && sh -c "aws s3 sync ${SOURCE_DIR:-public} s3://${AWS_S3_BUCKET}/${DEST_DIR} \
               --profile react-deploy-to-s3-action \
               --no-progress \
