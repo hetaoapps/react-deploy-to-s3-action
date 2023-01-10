@@ -19,7 +19,7 @@ fi
 
 # Default to us-east-1 if AWS_REGION not set.
 if [ -z "$AWS_REGION" ]; then
-  AWS_REGION="us-east-1"
+  AWS_REGION="us-west-2"
 fi
 
 # Override default AWS endpoint if user sets AWS_S3_ENDPOINT.
@@ -32,8 +32,11 @@ NODE_ENV_PREPEND="NODE_ENV=${NODE_ENV:-development}"
 
 
 # Override default build mode if set by user
-BUILD_MODE=${BUILD_MODE:-development}
+if [ -z "$BUILD_MODE" ]; then
+  BUILD_MODE="development"
+fi
 
+# Default to development build
 if [ "${BUILD_MODE}" == "production" ]; then
     BUILD_COMMAND="build:prod"
 else
